@@ -114,3 +114,121 @@ def classification_report(y_true, y_pred, target_names=None):
     lines.append("")
 
     return "\n".join(lines)
+
+
+# ── compute_accuracy ──────────────────────────────────────────────────
+def compute_accuracy(y_true, y_pred):
+    """Return the fraction of correct predictions."""
+    return np.mean(y_true == y_pred)
+
+
+# ── k_fold_split ──────────────────────────────────────────────────────
+def k_fold_split(X, y, k=5, seed=42):
+    """Split data into k folds and return list of (train_idx, val_idx) tuples."""
+    rng = np.random.RandomState(seed)
+    idx = np.arange(len(y))
+    rng.shuffle(idx)
+    fold_sz = len(y) // k
+    folds = []
+    for i in range(k):
+        s = i * fold_sz
+        e = (i + 1) * fold_sz if i < k - 1 else len(y)
+        v = idx[s:e]
+        t = np.concatenate([idx[:s], idx[e:]])
+        folds.append((t, v))
+    return folds
+
+
+# ── cross_validate ────────────────────────────────────────────────────
+def cross_validate(model_cls, params, X, y, k=5):
+    """Run k-fold cross-validation and return mean accuracy."""
+    folds = k_fold_split(X, y, k=k)
+    accs = []
+    for fi, (ti, vi) in enumerate(folds):
+        m = model_cls(**params)
+        m.fit(X[ti], y[ti])
+        acc = compute_accuracy(y[vi], m.predict(X[vi]))
+        accs.append(acc)
+        print(f"  Fold {fi+1}/{k}: {acc:.4f}")
+    mean_acc = np.mean(accs)
+    print(f"  Mean CV: {mean_acc:.4f}")
+    return mean_acc
+
+
+# ── plot_learning_curve ───────────────────────────────────────────────
+def plot_learning_curve(model_cls, params, X_tr, y_tr, X_vl, y_vl, fracs, title):
+    """Plot training & validation accuracy vs training set size."""
+    import matplotlib.pyplot as plt
+
+    tr_a, vl_a, szs = [], [], []
+    n = len(y_tr)
+    for f in fracs:
+        sz = max(int(n * f), 10)
+        szs.append(sz)
+        idx = np.random.choice(n, sz, replace=False)
+        m = model_cls(**params)
+        m.fit(X_tr[idx], y_tr[idx])
+        tr_a.append(compute_accuracy(y_tr[idx], m.predict(X_tr[idx])))
+        vl_a.append(compute_accuracy(y_vl, m.predict(X_vl)))
+    plt.figure(figsize=(8, 5))
+    plt.plot(szs, tr_a, 'o-', label='Train', color='#2ecc71')
+    plt.plot(szs, vl_a, 's-', label='Val', color='#e74c3c')
+    plt.fill_between(szs, tr_a, vl_a, alpha=0.15, color='gray')
+    plt.xlabel('Training Size')
+    plt.ylabel('Accuracy')
+    plt.title(title, fontweight='bold')
+    plt.legend()
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+
+
+# ── evaluate_model ────────────────────────────────────────────────────
+def evaluate_model(model, X_ts, y_ts, name):
+    """Evaluate a trained model: print report and plot confusion matrix."""
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    preds = model.predict(X_ts)
+    acc = compute_accuracy(y_ts, preds)
+    classes = np.unique(np.concatenate([y_ts, preds]))
+    target_names = [f'Digit {c}' for c in classes]
+
+    print(f"\n{'='*70}")
+    print(f"{name} — Test Acc: {acc:.4f} ({acc*100:.2f}%)")
+    print(f"{'='*70}")
+    print(classification_report(y_ts, preds, target_names=target_names))
+
+    cm = confusion_matrix(y_ts, preds)
+    plt.figure(figsize=(8, 7))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=classes, yticklabels=classes)
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    plt.title(f'{name}\nTest Acc: {acc:.4f}', fontweight='bold')
+    plt.tight_layout()
+    plt.show()
+    return acc
+
+# ── show_misclassified ─── ─────────────────────────────────────────────────
+def show_misclassified(y_true, y_pred, images, title='Misclassified Samples', n_show=10):
+    """Show misclassified samples."""
+    wrong = np.where(y_pred != y_true)[0]
+    n_wrong = len(wrong)
+    print(f'Misclassified: {n_wrong} / {len(y_true)}')
+    n_show = min(n_wrong, n_show)
+    if n_show == 0:
+        print('No misclassified samples!')
+        return
+    cols = min(n_show, 5); rows = (n_show + cols - 1) // cols
+    fig, axes = plt.subplots(rows, cols, figsize=(3*cols, 3.5*rows))
+    axes = np.array(axes).reshape(-1)
+    for k in range(n_show):
+        idx = wrong[k]
+        axes[k].imshow(images[idx], cmap='gray')
+        axes[k].set_title(f'T:{y_true[idx]} P:{y_pred[idx]}', color='red', fontsize=10)
+        axes[k].axis('off')
+    for k in range(n_show, len(axes)):
+        axes[k].axis('off')
+    plt.suptitle(title, fontsize=13, fontweight='bold')
+    plt.tight_layout(); plt.show()
