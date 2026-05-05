@@ -213,6 +213,8 @@ def evaluate_model(model, X_ts, y_ts, name):
 # ── show_misclassified ─── ─────────────────────────────────────────────────
 def show_misclassified(y_true, y_pred, images, title='Misclassified Samples', n_show=10):
     """Show misclassified samples."""
+    import matplotlib.pyplot as plt
+    
     wrong = np.where(y_pred != y_true)[0]
     n_wrong = len(wrong)
     print(f'Misclassified: {n_wrong} / {len(y_true)}')
