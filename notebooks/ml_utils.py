@@ -1,6 +1,6 @@
 import numpy as np
 
-# ── train_test_split ──────────────────────────────────────────────────
+# train_test_split 
 def train_test_split(*arrays, test_size=0.25, random_state=None, stratify=None):
     """Split arrays into random train / test subsets (stratified optional)."""
     rng = np.random.RandomState(random_state)
@@ -35,9 +35,8 @@ def train_test_split(*arrays, test_size=0.25, random_state=None, stratify=None):
     return result
 
 
-# ── StandardScaler ────────────────────────────────────────────────────
+# StandardScaler 
 class StandardScaler:
-    """Z-score standardisation: (x - mean) / std."""
     def __init__(self):
         self.mean_ = None
         self.std_  = None
@@ -59,9 +58,8 @@ class StandardScaler:
         return X * self.std_ + self.mean_
 
 
-# ── confusion_matrix ──────────────────────────────────────────────────
+# confusion_matrix 
 def confusion_matrix(y_true, y_pred):
-    """Return a confusion matrix (classes sorted ascending)."""
     classes = np.unique(np.concatenate([y_true, y_pred]))
     n = len(classes)
     c2i = {c: i for i, c in enumerate(classes)}
@@ -71,9 +69,8 @@ def confusion_matrix(y_true, y_pred):
     return cm
 
 
-# ── classification_report ─────────────────────────────────────────────
+# classification_report 
 def classification_report(y_true, y_pred, target_names=None):
-    """Return a text classification report (precision / recall / f1 / support)."""
     classes = np.unique(np.concatenate([y_true, y_pred]))
     if target_names is None:
         target_names = [str(c) for c in classes]
@@ -116,15 +113,13 @@ def classification_report(y_true, y_pred, target_names=None):
     return "\n".join(lines)
 
 
-# ── compute_accuracy ──────────────────────────────────────────────────
+# compute_accuracy 
 def compute_accuracy(y_true, y_pred):
-    """Return the fraction of correct predictions."""
     return np.mean(y_true == y_pred)
 
 
-# ── k_fold_split ──────────────────────────────────────────────────────
+# k_fold_split 
 def k_fold_split(X, y, k=5, seed=42):
-    """Split data into k folds and return list of (train_idx, val_idx) tuples."""
     rng = np.random.RandomState(seed)
     idx = np.arange(len(y))
     rng.shuffle(idx)
@@ -139,9 +134,8 @@ def k_fold_split(X, y, k=5, seed=42):
     return folds
 
 
-# ── cross_validate ────────────────────────────────────────────────────
+# cross_validate 
 def cross_validate(model_cls, params, X, y, k=5):
-    """Run k-fold cross-validation and return mean accuracy."""
     folds = k_fold_split(X, y, k=k)
     accs = []
     for fi, (ti, vi) in enumerate(folds):
@@ -155,9 +149,8 @@ def cross_validate(model_cls, params, X, y, k=5):
     return mean_acc
 
 
-# ── plot_learning_curve ───────────────────────────────────────────────
+# plot_learning_curve
 def plot_learning_curve(model_cls, params, X_tr, y_tr, X_vl, y_vl, fracs, title):
-    """Plot training & validation accuracy vs training set size."""
     import matplotlib.pyplot as plt
 
     tr_a, vl_a, szs = [], [], []
@@ -183,9 +176,8 @@ def plot_learning_curve(model_cls, params, X_tr, y_tr, X_vl, y_vl, fracs, title)
     plt.show()
 
 
-# ── evaluate_model ────────────────────────────────────────────────────
+# evaluate_model 
 def evaluate_model(model, X_ts, y_ts, name):
-    """Evaluate a trained model: print report and plot confusion matrix."""
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -210,9 +202,8 @@ def evaluate_model(model, X_ts, y_ts, name):
     plt.show()
     return acc
 
-# ── show_misclassified ─── ─────────────────────────────────────────────────
+# show_misclassified 
 def show_misclassified(y_true, y_pred, images, title='Misclassified Samples', n_show=10):
-    """Show misclassified samples."""
     import matplotlib.pyplot as plt
     
     wrong = np.where(y_pred != y_true)[0]
