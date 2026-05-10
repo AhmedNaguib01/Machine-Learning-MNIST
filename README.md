@@ -8,18 +8,15 @@ This project implements a complete Machine Learning pipeline in two phases:
 
 ### Phase 1: Binary Classification
 - **Binary classification** of MNIST digits (configurable digit pairs)
-- **Three ML algorithms from scratch**: Logistic Regression, K-Nearest Neighbors, Decision Tree
+- **Three ML algorithms from scratch**: Logistic Regression, K-Nearest Neighbors, Linear SVM
 - **Interactive Jupyter notebooks** with outputs displayed under each cell
 - **Complete pipeline**: Data loading → Preprocessing → Feature engineering → Training → Evaluation → Visualization
 
 ### Phase 2: Multiclass Classification (10-Class MNIST)
 - **10-class classification** of all MNIST digits (0-9)
-- **Five advanced ML algorithms from scratch**: 
-  - K-Nearest Neighbors (multiclass)
-  - Linear SVM (One-vs-Rest)
-  - Logistic Regression (One-vs-Rest)
-  - Random Forest Ensemble
-  - Gradient Boosting Ensemble
+- **Advanced Logistic Regression** with One-vs-Rest strategy
+- **Regularization techniques**: L1 (Lasso), L2 (Ridge), ElasticNet
+- **Bias-Variance analysis** for model understanding
 - **Advanced feature engineering**: PCA, HOG features, standardization
 - **Hyperparameter tuning** with cross-validation
 - **Learning curves** and comprehensive evaluation
@@ -27,7 +24,7 @@ This project implements a complete Machine Learning pipeline in two phases:
 ## 📁 Project Structure
 
 ```
-mnist-classification-pipeline/
+Machine-Learning-MNIST/
 │
 ├── notebooks/                                # 📓 Jupyter Notebooks (Complete Pipelines)
 │   ├── Phase 1/                             # Binary Classification (2-class)
@@ -36,11 +33,13 @@ mnist-classification-pipeline/
 │   │   └── logistic_regression_binary.ipynb # Logistic Regression binary classification
 │   │
 │   ├── Phase 2/                             # Multiclass Classification (10-class)
-│   │   ├── knn_multiclass.ipynb             # KNN multiclass (k=5, tuned)
-│   │   ├── linear_svm_multiclass.ipynb      # Linear SVM One-vs-Rest
-│   │   ├── logistic_regression_multiclass.ipynb # Logistic Regression One-vs-Rest
-│   │   ├── random_forest_ensemble.ipynb     # Random Forest (30 trees)
-│   │   └── gradient_boosting_ensemble.ipynb # Gradient Boosting (30 estimators)
+│   │   └── logistic_regression_multiclass.ipynb # Complete multiclass pipeline with:
+│   │                                        #   - One-vs-Rest Logistic Regression
+│   │                                        #   - L1/L2/ElasticNet Regularization
+│   │                                        #   - Bias-Variance Analysis
+│   │                                        #   - PCA & HOG Feature Engineering
+│   │                                        #   - Hyperparameter Tuning
+│   │                                        #   - Learning Curves
 │   │
 │   ├── ml_utils.py                          # Shared ML utilities and algorithms
 │   └── __pycache__/                         # Python cache files
@@ -79,11 +78,7 @@ Open any notebook - they're all independent!
 - `notebooks/Phase 1/logistic_regression_binary.ipynb`
 
 **Phase 2 (10-Class Classification):**
-- `notebooks/Phase 2/knn_multiclass.ipynb`
-- `notebooks/Phase 2/linear_svm_multiclass.ipynb`
-- `notebooks/Phase 2/logistic_regression_multiclass.ipynb`
-- `notebooks/Phase 2/random_forest_ensemble.ipynb`
-- `notebooks/Phase 2/gradient_boosting_ensemble.ipynb`
+- `notebooks/Phase 2/logistic_regression_multiclass.ipynb` - **Complete multiclass pipeline!**
 
 **Each notebook contains the complete pipeline from data loading to evaluation!**
 
@@ -99,10 +94,12 @@ Open any notebook - they're all independent!
 ### 🔬 Data Processing
 - ✅ Load MNIST from .npy files
 - ✅ Binary class filtering (configurable digits)
+- ✅ Class balancing (use minimum class count)
 - ✅ Image normalization (0-255 → 0-1)
 - ✅ Flattening (28×28 → 784)
 - ✅ Feature standardization (StandardScaler)
-- ✅ PCA dimensionality reduction
+- ✅ PCA dimensionality reduction (95% variance)
+- ✅ HOG feature extraction
 - ✅ Train/Validation/Test split (70/15/15)
 
 ### 🤖 Machine Learning Algorithms (From Scratch)
@@ -127,46 +124,100 @@ Open any notebook - they're all independent!
    - Margin maximization
 
 #### Phase 2: Multiclass Classification (10-Class MNIST)
-1. **K-Nearest Neighbors (Multiclass)**
-   - Euclidean distance computation
-   - Majority voting for 10 classes
-   - Cross-validation tuning (k=1,3,5,7,9)
-   - **Best Performance: 95% accuracy** with k=3
 
-2. **Linear SVM (One-vs-Rest)**
-   - Hinge loss with L2 regularization
-   - One-vs-Rest strategy for multiclass
-   - Gradient descent optimization
-   - **Best Performance: 98% accuracy** with HOG features
+**Logistic Regression (One-vs-Rest) - Complete Implementation**
 
-3. **Logistic Regression (One-vs-Rest)**
-   - Softmax activation for multiclass
-   - Cross-entropy loss
-   - One-vs-Rest binary classifiers
-   - **Best Performance: 95% accuracy** with HOG features
+The Phase 2 notebook includes a comprehensive multiclass classification pipeline:
 
-4. **Random Forest Ensemble**
-   - 30 decision trees with bootstrap sampling
-   - Gini impurity splitting criterion
-   - Feature bagging (sqrt features per tree)
-   - **Best Performance: 96% accuracy** with HOG features
+1. **Core Algorithm**
+   - One-vs-Rest strategy for 10-class classification
+   - Softmax-based probability computation
+   - Cross-entropy loss optimization
+   - Gradient descent with configurable learning rate
 
-5. **Gradient Boosting Ensemble**
-   - 30 weak learners (depth-3 trees)
-   - Sequential boosting with residual fitting
-   - Learning rate: 0.1
-   - **Best Performance: 85% accuracy** (challenging for from-scratch implementation)
+2. **Regularization Techniques** (Section 10)
+   - **L2 Regularization (Ridge)**: Penalizes large weights, prevents overfitting
+   - **L1 Regularization (Lasso)**: Encourages sparsity, feature selection
+   - **ElasticNet**: Combines L1 and L2 for balanced regularization
+   - Comparison of all regularization methods
+
+3. **Bias-Variance Analysis** (Section 11)
+   - Bootstrap-based decomposition
+   - Bias² computation (underfitting measure)
+   - Variance computation (overfitting measure)
+   - Total error analysis
+   - Visual comparison across regularization methods
+   - Interpretation guidelines
+
+4. **Feature Engineering**
+   - **PCA Features**: Dimensionality reduction (95% variance retained)
+   - **HOG Features**: Histogram of Oriented Gradients for edge detection
+   - **Flattened Features**: Raw pixel standardization
+   - Performance comparison across all feature types
+
+5. **Hyperparameter Tuning**
+   - K-fold cross-validation (k=5)
+   - Grid search over learning rates [0.001, 0.01, 0.05]
+   - Grid search over iterations [300, 500, 1000]
+   - Systematic best parameter selection
+
+6. **Learning Curves**
+   - Training vs validation accuracy
+   - Sample size impact analysis
+   - Overfitting/underfitting detection
+   - Model convergence visualization
 
 ### 📊 Evaluation & Visualization
 - ✅ Accuracy, Precision, Recall, F1 Score for all classes
-- ✅ Confusion matrices for all models
-- ✅ Model comparison charts and performance analysis
-- ✅ Cross-validation with k-fold splitting
-- ✅ Hyperparameter tuning with grid search
+- ✅ Confusion matrices with heatmaps
+- ✅ Classification reports (per-class metrics)
+- ✅ Model comparison charts
+- ✅ Cross-validation performance tracking
+- ✅ Hyperparameter tuning results
 - ✅ Learning curves for bias-variance analysis
 - ✅ Feature engineering comparison (PCA vs HOG vs Flatten)
+- ✅ Regularization impact visualization
+- ✅ Bias-variance tradeoff plots
+- ✅ Misclassified samples visualization
 - ✅ Comprehensive evaluation reports
-- ✅ Error analysis and misclassification visualization
+
+## 🛠️ ML Utilities (`ml_utils.py`)
+
+The `ml_utils.py` module contains all shared utilities and algorithms:
+
+### Data Processing
+- **`train_test_split()`**: Stratified train/test splitting
+- **`StandardScaler`**: Feature standardization (zero mean, unit variance)
+
+### Model Evaluation
+- **`confusion_matrix()`**: Compute confusion matrix
+- **`classification_report()`**: Detailed per-class metrics
+- **`compute_accuracy()`**: Simple accuracy calculation
+- **`evaluate_model()`**: Complete evaluation with visualization
+
+### Cross-Validation & Tuning
+- **`k_fold_split()`**: K-fold cross-validation splitting
+- **`cross_validate()`**: Cross-validation with any model
+- **`plot_learning_curve()`**: Learning curve visualization
+
+### Advanced Algorithms
+- **`LogisticRegressionRegularized`**: Logistic regression with L1/L2/ElasticNet
+  - Configurable penalty type ('l1', 'l2', 'elasticnet')
+  - Regularization strength parameter (C)
+  - One-vs-Rest multiclass support
+  
+- **`bias_variance_decomposition()`**: Bootstrap-based bias-variance analysis
+  - Computes bias², variance, and total error
+  - Configurable bootstrap samples (default: 50)
+  - Works with any model class
+  
+- **`plot_bias_variance()`**: Visualize bias-variance tradeoff
+  - Comparative bar charts
+  - Multiple models comparison
+  - Clear interpretation
+
+### Visualization
+- **`show_misclassified()`**: Display misclassified samples with predictions
 
 ## 🎛️ Configuration
 
@@ -195,7 +246,7 @@ SVM_ITERATIONS = 200
 ```
 
 ### Phase 2 (10-Class Classification)
-Configuration for multiclass algorithms:
+Configuration for multiclass logistic regression:
 
 ```python
 # Dataset
@@ -207,25 +258,21 @@ PCA_VARIANCE = 0.95  # Keep 95% of variance
 
 # Cross-Validation
 K_FOLDS = 5
+LC_FRACTIONS = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0]  # Learning curve points
 
-# Algorithm-Specific Parameters
-KNN_K_GRID = [1, 3, 5, 7, 9]
-DEFAULT_K = 5
-
+# Hyperparameter Grids
 LR_GRID = [0.001, 0.01, 0.05]
 ITER_GRID = [300, 500, 1000]
 
-SVM_LR = 0.001
-SVM_LAMBDA = 0.01
-SVM_ITER = 200
+# Default Parameters
+DEFAULT_LR = 0.01
+DEFAULT_ITER = 500
 
-RF_N_ESTIMATORS = 30
-RF_MAX_DEPTH = 12
-RF_MAX_FEATURES = 'sqrt'
+# Regularization
+REGULARIZATION_C = 1.0  # Inverse of regularization strength
 
-GB_N_ESTIMATORS = 30
-GB_MAX_DEPTH = 3
-GB_LEARNING_RATE = 0.1
+# Bias-Variance Analysis
+N_BOOTSTRAP = 30  # Number of bootstrap samples
 ```
 
 ## 📊 Expected Results
@@ -240,81 +287,88 @@ GB_LEARNING_RATE = 0.1
 
 ### Phase 2: 10-Class Classification (all digits 0-9)
 
-| Model | Best Feature | Test Accuracy | Notes |
-|-------|-------------|---------------|-------|
-| **Linear SVM** | HOG Features | **98%** | Best overall performer |
-| **Random Forest** | HOG Features | **96%** | Robust ensemble method |
-| **KNN (k=3)** | PCA Features | **95%** | Simple but effective |
-| **Logistic Regression** | HOG Features | **95%** | Good baseline |
-| **Gradient Boosting** | HOG Features | **85%** | Complex from-scratch implementation |
+**Logistic Regression (One-vs-Rest) Performance:**
+
+| Feature Type | Test Accuracy | Notes |
+|-------------|---------------|-------|
+| **HOG Features** | **~95%** | Best performance, captures edge information |
+| **PCA Features** | **~92%** | Good dimensionality reduction |
+| **Flattened Features** | **~90%** | Baseline performance |
+
+**Regularization Impact:**
+
+| Method | Bias² | Variance | Total Error | Notes |
+|--------|-------|----------|-------------|-------|
+| **No Regularization** | Low | High | Medium | May overfit |
+| **L2 (Ridge)** | Medium | Low | **Lowest** | Best generalization |
+| **L1 (Lasso)** | Medium | Low | Low | Feature selection |
+| **ElasticNet** | Medium | Low | Low | Balanced approach |
 
 **Key Insights:**
 - **HOG features** consistently outperform PCA and flattened features
-- **Linear SVM** achieves the highest accuracy (98%) on 10-class MNIST
-- **Ensemble methods** (Random Forest) provide good robustness
-- **Feature engineering** is crucial for performance (HOG > PCA > Flatten)
+- **L2 regularization** typically provides the best bias-variance tradeoff
+- **Regularization** reduces variance (overfitting) at the cost of slight bias increase
+- **Cross-validation** is essential for proper hyperparameter selection
+- **Learning curves** help identify if more data would improve performance
 
-## 📖 Documentation
-
-- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Quick commands and tips
-- **[Usage Guide](docs/USAGE_GUIDE.md)** - Comprehensive examples
-- **[Project Structure](docs/PROJECT_STRUCTURE.md)** - Detailed module descriptions
-- **[Pipeline Flow](docs/PIPELINE_FLOW.md)** - Visual pipeline diagrams
-
-## 🎓 Notebook Workflow
+## 📖 Notebook Workflow
 
 ### Phase 1: Binary Classification Notebooks
 Each notebook follows this structure:
-1. **Data Loading & Preprocessing**
-   - Load MNIST dataset from .npy files
-   - Filter for binary classification (configurable digits)
-   - Normalize pixel values (0-255 → 0-1)
-   - Train/validation/test split (70/15/15)
+1. **Setup & Imports** - Load libraries and set random seed
+2. **Configuration** - Set hyperparameters and digit pairs
+3. **Data Loading & Preprocessing** - Load, filter, normalize, split
+4. **Feature Engineering** - Flatten, standardize, PCA
+5. **Algorithm Implementation** - From-scratch ML algorithm
+6. **Training** - Fit model with visualization
+7. **Evaluation** - Metrics, confusion matrix, analysis
 
-2. **Feature Engineering**
-   - Flatten images (28×28 → 784 features)
-   - Standardization with StandardScaler
-   - PCA dimensionality reduction
+### Phase 2: Multiclass Classification Notebook
 
-3. **Algorithm Implementation**
-   - From-scratch implementation of ML algorithm
-   - Training with appropriate optimization
-   - Hyperparameter experimentation
+The `logistic_regression_multiclass.ipynb` notebook includes:
 
-4. **Evaluation & Visualization**
-   - Performance metrics calculation
-   - Confusion matrix visualization
-   - Learning curves and analysis
+**Section 1-3: Setup & Data Preparation**
+- Library imports and configuration
+- MNIST loading (70,000 samples)
+- Class balancing and train/val/test split (70/15/15)
+- Dataset visualization
 
-### Phase 2: 10-Class Classification Notebooks
-Each Phase 2 notebook includes:
+**Section 4: Feature Extraction**
+- **4a. PCA Features**: Dimensionality reduction (95% variance)
+- **4b. HOG Features**: Histogram of Oriented Gradients
+- Feature visualization and comparison
 
-1. **Complete Data Pipeline**
-   - Load full MNIST dataset (70,000 samples)
-   - Balance classes (use minimum class count)
-   - 70/15/15 train/validation/test split
-   - Multiple feature engineering approaches
+**Section 6: Logistic Regression Model**
+- One-vs-Rest implementation
+- Sigmoid activation and cross-entropy loss
+- Gradient descent optimization
 
-2. **Feature Engineering Comparison**
-   - **PCA Features**: Dimensionality reduction (95% variance)
-   - **Flattened Features**: Raw pixel standardization
-   - **HOG Features**: Histogram of Oriented Gradients
+**Section 7: Baseline Training**
+- Training on PCA features
+- Initial performance evaluation
+- Confusion matrix visualization
 
-3. **Algorithm Training & Tuning**
-   - Baseline model training
-   - Cross-validation hyperparameter tuning
-   - Performance comparison across feature types
+**Section 8: Hyperparameter Tuning**
+- K-fold cross-validation (k=5)
+- Grid search over learning rates and iterations
+- Best parameter selection
 
-4. **Comprehensive Evaluation**
-   - Classification reports for all 10 classes
-   - Confusion matrices with heatmaps
-   - Learning curves for bias-variance analysis
-   - Misclassification analysis
+**Section 9: Learning Curve**
+- Training vs validation accuracy
+- Sample size impact analysis
+- Overfitting/underfitting detection
 
-5. **Results Summary**
-   - Best configuration identification
-   - Performance comparison tables
-   - Feature importance analysis
+**Section 10: Regularization (L1/L2)** ⭐ NEW
+- **10a. L2 Regularization (Ridge)**: Weight penalty for smoothness
+- **10b. L1 Regularization (Lasso)**: Sparsity-inducing penalty
+- **10c. ElasticNet**: Combined L1 and L2
+- **10d. Comparison**: Performance across all methods
+
+**Section 11: Bias-Variance Analysis** ⭐ NEW
+- **11a. Compute Decomposition**: Bootstrap-based analysis
+- **11b. Display Results**: Bias², variance, and error metrics
+- **11c. Visualize Tradeoff**: Comparative bar charts
+- **11d. Interpretation**: Understanding the results
 
 ## 💡 Usage Examples
 
@@ -338,16 +392,17 @@ SVM_LEARNING_RATE = 0.001
 # Try different PCA variance thresholds
 PCA_VARIANCE = 0.90  # Keep 90% of variance
 
-# Experiment with ensemble parameters
-RF_N_ESTIMATORS = 50  # More trees
-RF_MAX_DEPTH = 15     # Deeper trees
+# Adjust regularization strength
+REGULARIZATION_C = 0.5  # Stronger regularization (smaller C = stronger penalty)
 
-GB_N_ESTIMATORS = 50  # More boosting rounds
-GB_LEARNING_RATE = 0.05  # Slower learning
+# Experiment with learning rates
+LR_GRID = [0.001, 0.005, 0.01, 0.05, 0.1]
 
-# Cross-validation grids
-KNN_K_GRID = [1, 3, 5, 7, 9, 11]  # Extended K range
-LR_GRID = [0.001, 0.01, 0.05, 0.1]  # More learning rates
+# More bootstrap samples for bias-variance
+N_BOOTSTRAP = 50  # More accurate but slower
+
+# Extended learning curve analysis
+LC_FRACTIONS = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1.0]
 ```
 
 ## 🔧 Troubleshooting
@@ -355,37 +410,38 @@ LR_GRID = [0.001, 0.01, 0.05, 0.1]  # More learning rates
 | Problem | Solution |
 |---------|----------|
 | Jupyter not found | `pip install jupyter` or `pip install jupyterlab` |
-| KNN too slow | Reduce training size or use PCA features |
-| LR not converging | Increase iterations or adjust learning rate |
-| SVM not converging | Adjust learning rate or regularization |
-| RF overfitting | Reduce max_depth or increase min_samples_split |
-| GB poor performance | Increase n_estimators or adjust learning_rate |
 | Import errors | Run `pip install -r requirements.txt` |
-| Data not found | Check `mnist.npz/` directory exists |
+| Data not found | Check `mnist.npz/` directory exists with .npy files |
 | Memory issues | Use PCA features instead of flattened features |
-| Slow training | Start with smaller datasets or fewer estimators |
+| Slow training | Reduce iterations or use smaller dataset |
+| LR not converging | Increase iterations or adjust learning rate |
+| Bias-variance slow | Reduce `N_BOOTSTRAP` from 50 to 20-30 |
+| HOG extraction slow | Use PCA features for faster experimentation |
+| Regularization not helping | Try different C values (0.1, 1.0, 10.0) |
 
 ## 📦 Dependencies
 
 ```
-numpy>=1.21.0
-scikit-learn>=1.0.0      # Only for preprocessing (StandardScaler, PCA) and metrics
+numpy>=1.21.0            # Numerical computations
+scikit-learn>=1.0.0      # Preprocessing (StandardScaler, PCA) and metrics
 matplotlib>=3.4.0        # Visualization
 seaborn>=0.11.0          # Statistical plots
 jupyter>=1.0.0           # Interactive notebooks
-tqdm>=4.62.0             # Progress bars
+jupyterlab>=3.0.0        # Modern notebook interface
 scikit-image>=0.18.0     # HOG feature extraction
+tqdm>=4.62.0             # Progress bars
 ```
 
-**Note**: All ML algorithms are implemented from scratch. Scikit-learn is only used for:
-- Preprocessing utilities (StandardScaler, PCA)
-- HOG feature extraction (scikit-image)
-- Evaluation metrics display
-- The core ML logic is entirely custom-built
+**Note**: All ML algorithms are implemented from scratch. External libraries are only used for:
+- **Preprocessing**: StandardScaler, PCA (scikit-learn)
+- **Feature extraction**: HOG (scikit-image)
+- **Visualization**: Matplotlib, Seaborn
+- **Metrics display**: Classification report formatting
+- **Core ML logic is entirely custom-built** ✅
 
 ## 🎓 Academic Requirements Met
 
-### Phase 1: Binary Classification
+### Phase 1: Binary Classification ✅
 ✅ Binary image classification  
 ✅ MNIST dataset from .npy files  
 ✅ Three ML algorithms from scratch  
@@ -395,17 +451,19 @@ scikit-image>=0.18.0     # HOG feature extraction
 ✅ Comprehensive evaluation metrics  
 ✅ Professional visualizations  
 
-### Phase 2: Multiclass Classification
+### Phase 2: Multiclass Classification ✅
 ✅ 10-class MNIST classification  
-✅ Five advanced ML algorithms from scratch  
-✅ Ensemble methods (Random Forest, Gradient Boosting)  
+✅ Logistic Regression (One-vs-Rest) from scratch  
+✅ **Regularization techniques** (L1, L2, ElasticNet)  
+✅ **Bias-Variance decomposition** and analysis  
 ✅ Advanced feature engineering (PCA, HOG, Standardization)  
 ✅ Cross-validation and hyperparameter tuning  
-✅ Learning curves and bias-variance analysis  
+✅ Learning curves for model diagnosis  
 ✅ Comprehensive performance comparison  
 ✅ Feature engineering impact analysis  
+✅ Misclassification analysis  
 
-### Technical Excellence
+### Technical Excellence ✅
 ✅ Interactive notebooks with inline outputs  
 ✅ Clean, modular code organization  
 ✅ Well-documented with markdown explanations  
@@ -413,14 +471,16 @@ scikit-image>=0.18.0     # HOG feature extraction
 ✅ Professional-grade visualizations  
 ✅ Industry-standard data science workflow  
 ✅ Complete error analysis and model interpretation  
+✅ Reusable utility functions in `ml_utils.py`  
+✅ Bootstrap-based statistical analysis  
 
 ## 🌟 Key Advantages
 
 ### Comprehensive Learning Path
 1. **Progressive Complexity**: Start with binary classification, advance to multiclass
-2. **Multiple Algorithms**: Compare different ML approaches and their strengths
-3. **Feature Engineering**: Understand the impact of different feature representations
-4. **Ensemble Methods**: Learn advanced techniques like Random Forest and Boosting
+2. **Multiple Algorithms**: Compare different ML approaches (Phase 1)
+3. **Advanced Techniques**: Regularization and bias-variance analysis (Phase 2)
+4. **Feature Engineering**: Understand the impact of different feature representations
 
 ### Interactive Development
 1. **Jupyter Notebooks**: Execute code step-by-step with immediate feedback
@@ -430,15 +490,39 @@ scikit-image>=0.18.0     # HOG feature extraction
 
 ### Educational Value
 1. **From-Scratch Implementation**: Understand algorithms at the fundamental level
-2. **Hyperparameter Tuning**: Learn systematic approach to model optimization
-3. **Cross-Validation**: Proper model evaluation and selection techniques
-4. **Performance Analysis**: Comprehensive evaluation with multiple metrics
+2. **Regularization**: Learn to prevent overfitting with L1/L2/ElasticNet
+3. **Bias-Variance Tradeoff**: Deep understanding of model behavior
+4. **Hyperparameter Tuning**: Systematic approach to model optimization
+5. **Cross-Validation**: Proper model evaluation and selection techniques
+6. **Performance Analysis**: Comprehensive evaluation with multiple metrics
 
 ### Real-World Relevance
 1. **Complete Pipeline**: End-to-end ML project structure
 2. **Multiple Feature Types**: PCA, HOG, and raw features comparison
 3. **Scalable Code**: Modular design for easy extension
 4. **Reproducible Results**: Proper random seeding and documentation
+5. **Statistical Rigor**: Bootstrap-based analysis for robust conclusions
+
+## 🔬 Advanced Topics Covered
+
+### Regularization
+- **Purpose**: Prevent overfitting by penalizing complex models
+- **L1 (Lasso)**: Encourages sparsity, useful for feature selection
+- **L2 (Ridge)**: Smooth weight distribution, better generalization
+- **ElasticNet**: Combines benefits of L1 and L2
+- **Implementation**: Custom gradient computation with penalty terms
+
+### Bias-Variance Tradeoff
+- **Bias**: Error from overly simplistic assumptions (underfitting)
+- **Variance**: Error from sensitivity to training data (overfitting)
+- **Decomposition**: Bootstrap sampling to separate bias and variance
+- **Analysis**: Visual comparison across different regularization methods
+- **Interpretation**: Guidelines for model selection and improvement
+
+### Feature Engineering
+- **PCA**: Dimensionality reduction while preserving variance
+- **HOG**: Edge and gradient information for image classification
+- **Comparison**: Systematic evaluation of feature impact on performance
 
 ## 📝 License
 
@@ -446,7 +530,7 @@ This is an academic project for educational purposes.
 
 ## 👥 Authors
 
-ML Project Team - Phase 1 Implementation
+ML Project Team - Complete Implementation (Phase 1 & Phase 2)
 
 ## 🙏 Acknowledgments
 
@@ -459,10 +543,28 @@ ML Project Team - Phase 1 Implementation
 
 ---
 
-**Ready to start?** 
+## 🚀 Getting Started
 
-**For Binary Classification:** Open `notebooks/Phase 1/knn_binary.ipynb` and begin with simple 2-class problems! 
+### For Beginners
+**Start with Phase 1:** Open `notebooks/Phase 1/logistic_regression_binary.ipynb` to learn binary classification fundamentals!
 
-**For Advanced Multiclass:** Jump to `notebooks/Phase 2/linear_svm_multiclass.ipynb` for the best-performing algorithm!
+### For Advanced Users
+**Jump to Phase 2:** Open `notebooks/Phase 2/logistic_regression_multiclass.ipynb` for the complete multiclass pipeline with regularization and bias-variance analysis!
 
-🚀 **Happy Learning!**
+### Quick Commands
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Start Jupyter Notebook
+jupyter notebook
+
+# Or start JupyterLab (modern interface)
+jupyter lab
+```
+
+---
+
+**🎓 Happy Learning!** 
+
+*This project demonstrates a complete machine learning workflow from data loading to advanced model analysis, suitable for both learning and academic projects.*
