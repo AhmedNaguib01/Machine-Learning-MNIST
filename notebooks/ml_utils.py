@@ -225,3 +225,144 @@ def show_misclassified(y_true, y_pred, images, title='Misclassified Samples', n_
         axes[k].axis('off')
     plt.suptitle(title, fontsize=13, fontweight='bold')
     plt.tight_layout(); plt.show()
+
+
+# Regularized Logistic Regression with L1/L2 penalties
+class LogisticRegressionRegularized:
+    def __init__(self, learning_rate=0.01, n_iterations=1000, penalty='l2', C=1.0):
+        self.lr = learning_rate
+        self.n_iter = n_iterations
+        self.penalty = penalty
+        self.C = C
+        self.models = []
+        
+    @staticmethod
+    def _sigmoid(z):
+        return 1.0 / (1.0 + np.exp(-np.clip(z, -500, 500)))
+    
+    def _compute_regularization(self, w):
+        if self.penalty == 'l1':
+            return np.sum(np.abs(w)) / self.C
+        elif self.penalty == 'l2':
+            return np.sum(w ** 2) / (2 * self.C)
+        elif self.penalty == 'elasticnet':
+            # ElasticNet: combination of L1 and L2
+            l1_ratio = 0.5
+            return l1_ratio * np.sum(np.abs(w)) / self.C + (1 - l1_ratio) * np.sum(w ** 2) / (2 * self.C)
+        return 0
+    
+    def _compute_regularization_gradient(self, w):
+        if self.penalty == 'l1':
+            return np.sign(w) / self.C
+        elif self.penalty == 'l2':
+            return w / self.C
+        elif self.penalty == 'elasticnet':
+            l1_ratio = 0.5
+            return l1_ratio * np.sign(w) / self.C + (1 - l1_ratio) * w / self.C
+        return np.zeros_like(w)
+    
+    def fit(self, X, y):
+        n, d = X.shape
+        self.classes_ = np.unique(y)
+        self.models = []
+        
+        for c in self.classes_:
+            yb = (y == c).astype(float)
+            w, b = np.zeros(d), 0.0
+            
+            for _ in range(self.n_iter):
+                yh = self._sigmoid(X @ w + b)
+                
+                # Compute gradients with regularization
+                dw = (X.T @ (yh - yb)) / n + self._compute_regularization_gradient(w)
+                db = np.sum(yh - yb) / n
+                
+                # Update parameters
+                w -= self.lr * dw
+                b -= self.lr * db
+            
+            self.models.append((w, b))
+        return self
+    
+    def predict(self, X):
+        scores = np.column_stack([self._sigmoid(X @ w + b) for w, b in self.models])
+        return self.classes_[np.argmax(scores, axis=1)]
+
+
+# Bias-Variance Decomposition
+def bias_variance_decomposition(model_class, params, X_train, y_train, X_test, y_test, 
+                                n_bootstrap=50, sample_fraction=0.8):
+
+    n_samples = int(len(X_train) * sample_fraction)
+    predictions = []
+    
+    # Train multiple models on bootstrap samples
+    for i in range(n_bootstrap):
+        # Bootstrap sample
+        indices = np.random.choice(len(X_train), n_samples, replace=True)
+        X_boot = X_train[indices]
+        y_boot = y_train[indices]
+        
+        # Train model
+        model = model_class(**params)
+        model.fit(X_boot, y_boot)
+        
+        # Get predictions
+        preds = model.predict(X_test)
+        predictions.append(preds)
+    
+    predictions = np.array(predictions)
+    
+    # Compute main prediction (mode across bootstrap samples)
+    main_predictions = np.apply_along_axis(
+        lambda x: np.bincount(x.astype(int)).argmax(), 
+        axis=0, 
+        arr=predictions
+    )
+    
+    # Compute bias: error of main prediction
+    bias = 1 - np.mean(main_predictions == y_test)
+    
+    # Compute variance: disagreement among predictions
+    variance = np.mean([
+        1 - np.mean(predictions[i] == main_predictions) 
+        for i in range(n_bootstrap)
+    ])
+    
+    # Compute total error
+    error = 1 - np.mean(predictions == y_test[:, np.newaxis])
+    
+    return {
+        'bias': bias,
+        'variance': variance,
+        'error': error,
+        'predictions': predictions
+    }
+
+
+def plot_bias_variance(results_dict, title='Bias-Variance Tradeoff'):
+    import matplotlib.pyplot as plt
+    
+    models = list(results_dict.keys())
+    bias_vals = [results_dict[m]['bias'] for m in models]
+    var_vals = [results_dict[m]['variance'] for m in models]
+    error_vals = [results_dict[m]['error'] for m in models]
+    
+    x = np.arange(len(models))
+    width = 0.25
+    
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - width, bias_vals, width, label='Bias²', color='#e74c3c')
+    ax.bar(x, var_vals, width, label='Variance', color='#3498db')
+    ax.bar(x + width, error_vals, width, label='Total Error', color='#95a5a6')
+    
+    ax.set_xlabel('Model', fontweight='bold')
+    ax.set_ylabel('Error', fontweight='bold')
+    ax.set_title(title, fontweight='bold', fontsize=14)
+    ax.set_xticks(x)
+    ax.set_xticklabels(models, rotation=45, ha='right')
+    ax.legend()
+    ax.grid(alpha=0.3, axis='y')
+    
+    plt.tight_layout()
+    plt.show()
